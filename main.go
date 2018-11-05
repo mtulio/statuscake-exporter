@@ -3,7 +3,6 @@ package main
 import (
 	"flag"
 	"fmt"
-	"io/ioutil"
 	"net/http"
 	"os"
 	"sort"
@@ -19,12 +18,6 @@ func check(e error) {
 	if e != nil {
 		panic(e)
 	}
-}
-
-func readVersion() {
-	dat, err := ioutil.ReadFile("./VERSION")
-	check(err)
-	config.version = string(dat)
 }
 
 func usage() {
@@ -44,8 +37,6 @@ func init() {
 	flagVersion := flag.Bool("v", false, "prints current version")
 	flag.Usage = usage
 	flag.Parse()
-
-	readVersion()
 
 	if *flagVersion {
 		fmt.Println(config.version)

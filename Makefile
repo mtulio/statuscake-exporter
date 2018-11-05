@@ -1,7 +1,5 @@
-
-export PATH := ./bin:$(PATH)
-export GO111MODULE := on
-export BIN_NAME := ./bin/statuscake-exporter
+include Makefile-glob.mk
+include Makefile-fc.mk
 
 # Initial development
 .PHONY: init
@@ -21,7 +19,11 @@ update:
 .PHONY: build
 build:
 	@test -d ./bin || mkdir ./bin
-	go build -o $(BIN_NAME) && strip $(BIN_NAME)
+	GOOS=$(GOOS) GOARCH=$(GOARCH) \
+		go build \
+		-ldflags "$(LDFLAGS)" \
+		$(BUILD_TAGS) \
+		-o $(BIN_NAME) && strip $(BIN_NAME)
 
 .PHONY: run
 run:
