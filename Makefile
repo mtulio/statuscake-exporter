@@ -1,5 +1,4 @@
 
-
 export PATH := ./bin:$(PATH)
 export GO111MODULE := on
 export BIN_NAME := ./bin/statuscake-exporter
@@ -36,3 +35,20 @@ version: build
 clean:
 	@rm -f bin/$(BIN_NAME)
 
+# ##########
+# Goreleaser
+# https://goreleaser.com/introduction/
+gorelease-init:
+	goreleaser init
+
+# #######
+# Release
+tag:
+	$(call deps_tag,$@)
+	git tag -a $(shell cat VERSION) -m "$(message)"
+	git push origin $(shell cat VERSION)
+
+# Release tool
+# https://goreleaser.com/introduction/
+release:
+	goreleaser --rm-dist

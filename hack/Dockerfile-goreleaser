@@ -1,0 +1,4 @@
+FROM alpine:latest
+COPY go-url /statuscake-exporter
+ENTRYPOINT ["/statuscake-exporter"]
+CMD [ "-h" ]
