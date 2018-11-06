@@ -3,7 +3,7 @@ package collector
 import (
 	"strings"
 
-	stk "github.com/mtulio/statuscake-exporter/statusCake"
+	"github.com/mtulio/statuscake-exporter/stk"
 	"github.com/prometheus/client_golang/prometheus"
 )
 

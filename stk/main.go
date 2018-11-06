@@ -1,11 +1,12 @@
 package stk
 
 import (
+	"fmt"
 	"log"
 	"net/url"
 	"time"
 
-	"github.com/DreamItGetIT/statuscake"
+	"github.com/mtulio/statuscake"
 )
 
 type StkOptions struct {
@@ -57,6 +58,7 @@ func (stk *StkAPI) SetWaitInterval(sec uint8) {
 // gather functions
 func (stk *StkAPI) GatherAll() error {
 	go stk.gatherTest()
+	stk.gatherPerfData()
 	return nil
 }
 
@@ -72,6 +74,24 @@ func (stk *StkAPI) gatherTest() {
 		}
 
 		stk.ClientTests = tests
+		time.Sleep(time.Second * time.Duration(stk.waitIntervalSec))
+	}
+}
+
+func (stk *StkAPI) gatherPerfData() {
+	testId := 1314813
+	for {
+		// v := url.Values{}
+		// if stk.configTags != "" {
+		// 	v.Set("tags", stk.configTags)
+		// }
+		perfData, err := stk.client.PerfData().All(testId)
+		if err != nil {
+			log.Println(err)
+		}
+		fmt.Println("%v", perfData)
+
+		// stk.ClientTests = tests
 		time.Sleep(time.Second * time.Duration(stk.waitIntervalSec))
 	}
 }
