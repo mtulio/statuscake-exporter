@@ -1,16 +1,16 @@
 package collector
 
 import (
-	"log"
-	"net/url"
 	"strings"
 
+	stk "github.com/mtulio/statuscake-exporter/statusCake"
 	"github.com/prometheus/client_golang/prometheus"
 )
 
 type stkTestCollector struct {
 	stkTestUp     *prometheus.Desc
 	stkTestUptime *prometheus.Desc
+	StkAPI        *stk.StkAPI
 }
 
 const (
@@ -45,32 +45,33 @@ func (c *stkTestCollector) Update(ch chan<- prometheus.Metric) error {
 	return nil
 }
 
+func (c *stkTestCollector) UpdateConfig(stkAPI *stk.StkAPI) error {
+	c.StkAPI = stkAPI
+	return nil
+}
+
 func (c *stkTestCollector) updateStkTest(ch chan<- prometheus.Metric) error {
 
-	v := url.Values{}
-	if Stk.Tags != "" {
-		v.Set("tags", Stk.Tags)
+	if c.StkAPI == nil {
+		return nil
 	}
-	testsWithFilter, err := Stk.Client.Tests().AllWithFilter(v)
-	if err != nil {
-		log.Fatal(err)
-	}
-	for t := range testsWithFilter {
+	tests := c.StkAPI.GetTests()
+	for t := range tests {
 		testStatus := 0
-		if strings.ToLower(testsWithFilter[t].Status) == "up" {
+		if strings.ToLower(tests[t].Status) == "up" {
 			testStatus = 1
 		}
 		ch <- prometheus.MustNewConstMetric(
 			c.stkTestUp,
 			prometheus.GaugeValue,
 			float64(testStatus),
-			testsWithFilter[t].WebsiteName,
+			tests[t].WebsiteName,
 		)
 		ch <- prometheus.MustNewConstMetric(
 			c.stkTestUptime,
 			prometheus.GaugeValue,
-			float64(testsWithFilter[t].Uptime),
-			testsWithFilter[t].WebsiteName,
+			float64(tests[t].Uptime),
+			tests[t].WebsiteName,
 		)
 	}
 

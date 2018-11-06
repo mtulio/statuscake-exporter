@@ -1,5 +1,11 @@
 package main
 
+import (
+	"github.com/mtulio/statuscake-exporter/collector"
+	stk "github.com/mtulio/statuscake-exporter/statusCake"
+	"github.com/prometheus/client_golang/prometheus"
+)
+
 type globalConf struct {
 	listenAddress string
 	metricsPath   string
@@ -9,14 +15,29 @@ type globalConf struct {
 	versionEnv    string
 	StkUsername   string
 	StkApikey     string
+	StkTags       string
 }
 
+type globalProm struct {
+	MC        *collector.MasterCollector
+	Registry  *prometheus.Registry
+	Gatherers *prometheus.Gatherers
+}
+
+const (
+	exporterName        = "statuscake_exporter"
+	exporterDescription = "StatusCake Exporter"
+)
+
 var (
+	// VersionCommit is a compiler exporterd var
 	VersionCommit string
 	VersionTag    string
 	VersionFull   string
 	VersionEnv    string
-	config        = globalConf{
+
+	// Global vars
+	config = globalConf{
 		":9190",
 		"/metrics",
 		VersionFull,
@@ -25,5 +46,8 @@ var (
 		VersionEnv,
 		"",
 		"",
+		"",
 	}
+	stkAPI *stk.StkAPI
+	prom   globalProm
 )
