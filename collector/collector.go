@@ -7,11 +7,29 @@ import (
 	"time"
 
 	"github.com/apex/log"
+	stk "github.com/mtulio/statuscake-exporter/statusCake"
 	"github.com/prometheus/client_golang/prometheus"
 )
 
-// Namespace defines the common namespace to be used by all metrics.
-const namespace = "statuscake"
+// NodeCollector implements the prometheus.Collector interface.
+type MasterCollector struct {
+	Collectors map[string]Collector
+	StkAPI     *stk.StkAPI
+}
+
+// Collector is the interface a collector has to implement.
+type Collector interface {
+	// Get new metrics and expose them via prometheus registry.
+	Update(ch chan<- prometheus.Metric) error
+	UpdateConfig(stkAPI *stk.StkAPI) error
+}
+
+const (
+	// Namespace defines the common namespace to be used by all metrics.
+	namespace       = "statuscake"
+	defaultEnabled  = true
+	defaultDisabled = false
+)
 
 var (
 	scrapeDurationDesc = prometheus.NewDesc(
@@ -26,14 +44,6 @@ var (
 		[]string{"collector"},
 		nil,
 	)
-)
-
-const (
-	defaultEnabled  = true
-	defaultDisabled = false
-)
-
-var (
 	factories      = make(map[string]func() (Collector, error))
 	collectorState = make(map[string]*bool)
 )
@@ -56,19 +66,8 @@ func registerCollector(collector string, isDefaultEnabled bool, factory func() (
 	factories[collector] = factory
 }
 
-// NodeCollector implements the prometheus.Collector interface.
-type MasterCollector struct {
-	Collectors map[string]Collector
-}
-
-// Collector is the interface a collector has to implement.
-type Collector interface {
-	// Get new metrics and expose them via prometheus registry.
-	Update(ch chan<- prometheus.Metric) error
-}
-
 // NewNodeCollector creates a new NodeCollector.
-func NewMasterCollector(filters ...string) (*MasterCollector, error) {
+func NewMasterCollector(stkAPI *stk.StkAPI, filters ...string) (*MasterCollector, error) {
 	f := make(map[string]bool)
 	for _, filter := range filters {
 		enabled, exist := collectorState[filter]
@@ -92,7 +91,10 @@ func NewMasterCollector(filters ...string) (*MasterCollector, error) {
 			}
 		}
 	}
-	return &MasterCollector{Collectors: collectors}, nil
+	return &MasterCollector{
+		Collectors: collectors,
+		StkAPI:     stkAPI,
+	}, nil
 }
 
 //Each and every collector must implement the Describe function.
@@ -109,6 +111,10 @@ func (mc *MasterCollector) Collect(ch chan<- prometheus.Metric) {
 	wg := sync.WaitGroup{}
 	wg.Add(len(mc.Collectors))
 	for name, c := range mc.Collectors {
+		err := c.UpdateConfig(mc.StkAPI)
+		if err != nil {
+			log.Errorf("ERROR: %s collector failed: %s", name, err)
+		}
 		go func(name string, c Collector) {
 			execute(name, c, ch)
 			wg.Done()
