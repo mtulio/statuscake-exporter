@@ -1,6 +1,7 @@
 package collector
 
 import (
+	"strconv"
 	"strings"
 
 	"github.com/mtulio/statuscake-exporter/stk"
@@ -10,6 +11,7 @@ import (
 type stkTestCollector struct {
 	stkTestUp     *prometheus.Desc
 	stkTestUptime *prometheus.Desc
+	stkTestPerf   *prometheus.Desc
 	StkAPI        *stk.StkAPI
 }
 
@@ -26,13 +28,18 @@ func NewStkTestCollector() (Collector, error) {
 	return &stkTestCollector{
 		stkTestUp: prometheus.NewDesc(
 			prometheus.BuildFQName(namespace, stkTestCollectorSubsystem, "up"),
-			"Status Cake test Status",
+			"StatusCake Test Status",
 			[]string{"name"}, nil,
 		),
 		stkTestUptime: prometheus.NewDesc(
 			prometheus.BuildFQName(namespace, stkTestCollectorSubsystem, "uptime"),
-			"Status Cake test Uptime from the last 7 day",
+			"StatusCake Test Uptime from the last 7 day",
 			[]string{"name"}, nil,
+		),
+		stkTestPerf: prometheus.NewDesc(
+			prometheus.BuildFQName(namespace, stkTestCollectorSubsystem, "performance_ms"),
+			"StatusCake Test performance data",
+			[]string{"name", "location", "status"}, nil,
 		),
 	}, nil
 }
@@ -73,6 +80,18 @@ func (c *stkTestCollector) updateStkTest(ch chan<- prometheus.Metric) error {
 			float64(tests[t].Uptime),
 			tests[t].WebsiteName,
 		)
+		if len(tests[t].PerformanceData) > 0 {
+			for p := range tests[t].PerformanceData {
+				ch <- prometheus.MustNewConstMetric(
+					c.stkTestPerf,
+					prometheus.GaugeValue,
+					float64(tests[t].PerformanceData[p].Performance),
+					tests[t].WebsiteName,
+					tests[t].PerformanceData[p].Location,
+					strconv.Itoa(tests[t].PerformanceData[p].Status),
+				)
+			}
+		}
 	}
 
 	return nil

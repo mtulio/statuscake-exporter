@@ -1,12 +1,12 @@
 package stk
 
 import (
-	"fmt"
 	"log"
 	"net/url"
+	"strconv"
 	"time"
 
-	"github.com/mtulio/statuscake"
+	statuscake "github.com/mtulio/statuscake-exporter/statuscacke"
 )
 
 type StkOptions struct {
@@ -18,7 +18,7 @@ type StkAPI struct {
 	client          *statuscake.Client
 	configTags      string
 	waitIntervalSec uint8
-	ClientTests     []*statuscake.Test
+	Tests           []*statuscake.Test
 }
 
 type StkTest statuscake.Test
@@ -48,7 +48,7 @@ func (stk *StkAPI) SetConfigTags(tags string) {
 }
 
 func (stk *StkAPI) GetTests() []*statuscake.Test {
-	return stk.ClientTests
+	return stk.Tests
 }
 
 func (stk *StkAPI) SetWaitInterval(sec uint8) {
@@ -58,7 +58,7 @@ func (stk *StkAPI) SetWaitInterval(sec uint8) {
 // gather functions
 func (stk *StkAPI) GatherAll() error {
 	go stk.gatherTest()
-	stk.gatherPerfData()
+	go stk.gatherTestsData()
 	return nil
 }
 
@@ -72,26 +72,31 @@ func (stk *StkAPI) gatherTest() {
 		if err != nil {
 			log.Println(err)
 		}
-
-		stk.ClientTests = tests
+		stk.Tests = tests
 		time.Sleep(time.Second * time.Duration(stk.waitIntervalSec))
 	}
 }
 
-func (stk *StkAPI) gatherPerfData() {
-	testId := 1314813
+func (stk *StkAPI) gatherTestsData() {
 	for {
-		// v := url.Values{}
-		// if stk.configTags != "" {
-		// 	v.Set("tags", stk.configTags)
-		// }
-		perfData, err := stk.client.PerfData().All(testId)
-		if err != nil {
-			log.Println(err)
+		if len(stk.Tests) <= 0 {
+			time.Sleep(10 * time.Duration(stk.waitIntervalSec))
+			continue
 		}
-		fmt.Println("%v", perfData)
+		filters := url.Values{}
 
-		// stk.ClientTests = tests
+		filters.Set("Fields", "performance,status,location,time")
+		filters.Set("Limit", strconv.Itoa(10))
+
+		for t := range stk.Tests {
+			filters.Set("TestID", strconv.Itoa(stk.Tests[t].TestID))
+			perfData, err := stk.client.PerfData().AllWithFilter(filters)
+			if err != nil {
+				log.Println(err)
+			}
+			stk.Tests[t].PerformanceData = perfData
+		}
+
 		time.Sleep(time.Second * time.Duration(stk.waitIntervalSec))
 	}
 }
