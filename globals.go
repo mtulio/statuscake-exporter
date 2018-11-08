@@ -16,6 +16,7 @@ type globalConf struct {
 	StkUsername   string
 	StkApikey     string
 	StkTags       string
+	StkInterval   int
 }
 
 type globalProm struct {
@@ -27,6 +28,7 @@ type globalProm struct {
 const (
 	exporterName        = "statuscake_exporter"
 	exporterDescription = "StatusCake Exporter"
+	default_stkInterval = 300
 )
 
 var (
@@ -47,6 +49,7 @@ var (
 		"",
 		"",
 		"",
+		default_stkInterval,
 	}
 	stkAPI *stk.StkAPI
 	prom   globalProm
