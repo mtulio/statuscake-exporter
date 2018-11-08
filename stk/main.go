@@ -17,8 +17,9 @@ type StkOptions struct {
 type StkAPI struct {
 	client          *statuscake.Client
 	configTags      string
-	waitIntervalSec uint8
+	waitIntervalSec uint32
 	Tests           []*statuscake.Test
+	controlInit     bool
 }
 
 type StkTest statuscake.Test
@@ -38,7 +39,8 @@ func NewStkAPI(user string, pass string) (*StkAPI, error) {
 
 	return &StkAPI{
 		client:          c,
-		waitIntervalSec: 30,
+		waitIntervalSec: 300,
+		controlInit:     false,
 	}, nil
 }
 
@@ -47,12 +49,20 @@ func (stk *StkAPI) SetConfigTags(tags string) {
 	stk.configTags = tags
 }
 
+func (stk *StkAPI) GetTags() string {
+	return stk.configTags
+}
+
 func (stk *StkAPI) GetTests() []*statuscake.Test {
 	return stk.Tests
 }
 
-func (stk *StkAPI) SetWaitInterval(sec uint8) {
+func (stk *StkAPI) SetWaitInterval(sec uint32) {
 	stk.waitIntervalSec = sec
+}
+
+func (stk *StkAPI) GetWaitInterval() uint32 {
+	return stk.waitIntervalSec
 }
 
 // gather functions
@@ -73,6 +83,10 @@ func (stk *StkAPI) gatherTest() {
 			log.Println(err)
 		}
 		stk.Tests = tests
+		if !stk.controlInit {
+			log.Println(" Initial API discovery returns the Total of Tests:", len(tests))
+			stk.controlInit = true
+		}
 		time.Sleep(time.Second * time.Duration(stk.waitIntervalSec))
 	}
 }
@@ -80,7 +94,7 @@ func (stk *StkAPI) gatherTest() {
 func (stk *StkAPI) gatherTestsData() {
 	for {
 		if len(stk.Tests) <= 0 {
-			time.Sleep(10 * time.Duration(stk.waitIntervalSec))
+			time.Sleep(time.Second * 10)
 			continue
 		}
 		filters := url.Values{}
@@ -96,7 +110,6 @@ func (stk *StkAPI) gatherTestsData() {
 			}
 			stk.Tests[t].PerformanceData = perfData
 		}
-
 		time.Sleep(time.Second * time.Duration(stk.waitIntervalSec))
 	}
 }

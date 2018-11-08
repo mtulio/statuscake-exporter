@@ -23,9 +23,10 @@ func initFlags() error {
 	flagListenAddress := flag.String("web.listen-address", config.listenAddress, "Address on which to expose metrics and web interface.")
 	flagMetricsPath := flag.String("web.telemetry-path", config.metricsPath, "Path under which to expose metrics.")
 
-	flagStkUsername := flag.String("stk.username", "", "StatusCake API's Username.")
-	flagStkApikey := flag.String("stk.apikey", "", "StatusCake API's Apikey.")
-	flagStkTags := flag.String("stk.tags", "", "StatusCake Filter Tags separated by comma.")
+	flagStkUsername := flag.String("stk.username", "", "StatusCake API's Username. Default: nil (required)")
+	flagStkApikey := flag.String("stk.apikey", "", "StatusCake API's Apikey. Default: nil (required)")
+	flagStkTags := flag.String("stk.tags", "", "StatusCake Filter Tags separated by comma. Default: <empty>")
+	flagStkInterval := flag.Int("stk.interval", 300, "StatusCake interval time, in seconds, to gather metrics on API (avoid throtling). Default: 300.")
 
 	flagVersion := flag.Bool("v", false, "prints current version")
 	flag.Usage = usage
@@ -60,6 +61,10 @@ func initFlags() error {
 
 	if *flagStkTags != "" {
 		config.StkTags = *flagStkTags
+	}
+
+	if *flagStkInterval != default_stkInterval {
+		config.StkInterval = *flagStkInterval
 	}
 
 	return nil
@@ -99,22 +104,27 @@ func initStkAPI() error {
 	var err error
 	err = nil
 
-	log.Info("Initializing Status Cake client...")
-
 	stkAPI, err = stk.NewStkAPI(config.StkUsername, config.StkApikey)
 	if err != nil {
-		log.Errorln("Init StatusCake API: ", err)
+		log.Errorln("Initializing StatusCake API: ", err)
 		return err
 	}
-	log.Infoln("Success")
+	log.Info("Initializing StatusCake API client...Success")
+
+	stkAPI.SetWaitInterval(uint32(config.StkInterval))
 
 	err = stkAPI.GatherAll()
 	if err != nil {
 		log.Warnln("Init Prom: Couldn't create collector: ", err)
 		return err
 	}
+
+	log.Info("StatusCake collector config:")
+	log.Info("- username: ", config.StkUsername)
+	log.Info("- interval: ", stkAPI.GetWaitInterval())
 	if config.StkTags != "" {
 		stkAPI.SetConfigTags(config.StkTags)
+		log.Info("- tags: ", stkAPI.GetTags())
 	}
 
 	return nil
