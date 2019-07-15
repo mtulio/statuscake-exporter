@@ -26,7 +26,7 @@ func initFlags() error {
 	flagStkUsername := flag.String("stk.username", "", "StatusCake API's Username. Default: nil (required)")
 	flagStkApikey := flag.String("stk.apikey", "", "StatusCake API's Apikey. Default: nil (required)")
 	flagStkTags := flag.String("stk.tags", "", "StatusCake Filter Tags separated by comma. Default: <empty>")
-	flagStkInterval := flag.Int("stk.interval", 300, "StatusCake interval time, in seconds, to gather metrics on API (avoid throtling). Default: 300.")
+	flagStkInterval := flag.Int("stk.interval", defaultInterval, "StatusCake interval time, in seconds, to gather metrics on API (avoid throtling). Default: 300.")
 
 	flagVersion := flag.Bool("v", false, "prints current version")
 	flag.Usage = usage
@@ -63,7 +63,7 @@ func initFlags() error {
 		config.StkTags = *flagStkTags
 	}
 
-	if *flagStkInterval != default_stkInterval {
+	if *flagStkInterval != defaultInterval {
 		config.StkInterval = *flagStkInterval
 	}
 

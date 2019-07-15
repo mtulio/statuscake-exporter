@@ -63,32 +63,36 @@ func (c *stkTestCollector) updateStkTest(ch chan<- prometheus.Metric) error {
 		return nil
 	}
 	tests := c.StkAPI.GetTests()
+	if len(tests) < 1 {
+		return nil
+	}
 	for t := range tests {
+		test := tests[t]
 		testStatus := 0
-		if strings.ToLower(tests[t].Status) == "up" {
+		if strings.ToLower(test.Status) == "up" {
 			testStatus = 1
 		}
 		ch <- prometheus.MustNewConstMetric(
 			c.stkTestUp,
 			prometheus.GaugeValue,
 			float64(testStatus),
-			tests[t].WebsiteName,
+			test.WebsiteName,
 		)
 		ch <- prometheus.MustNewConstMetric(
 			c.stkTestUptime,
 			prometheus.GaugeValue,
-			float64(tests[t].Uptime),
-			tests[t].WebsiteName,
+			float64(test.Uptime),
+			test.WebsiteName,
 		)
-		if len(tests[t].PerformanceData) > 0 {
-			for p := range tests[t].PerformanceData {
+		if len(test.PerformanceData) > 0 {
+			for p := range test.PerformanceData {
 				ch <- prometheus.MustNewConstMetric(
 					c.stkTestPerf,
 					prometheus.GaugeValue,
-					float64(tests[t].PerformanceData[p].Performance),
-					tests[t].WebsiteName,
-					tests[t].PerformanceData[p].Location,
-					strconv.Itoa(tests[t].PerformanceData[p].Status),
+					float64(test.PerformanceData[p].Performance),
+					test.WebsiteName,
+					test.PerformanceData[p].Location,
+					strconv.Itoa(test.PerformanceData[p].Status),
 				)
 			}
 		}
