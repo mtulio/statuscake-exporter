@@ -51,4 +51,8 @@ statuscake_test_uptime{name="MyApp01_-_api"} 100
 
 ## CONTRIBUTOR
 
-> TODO
+* Fork me
+* Open an PR with enhancements, bugfixes, etc
+* Open an issue
+
+You are welcome. =)

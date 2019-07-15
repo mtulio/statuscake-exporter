@@ -6,7 +6,7 @@ import (
 	"strconv"
 	"time"
 
-	statuscake "github.com/mtulio/statuscake-exporter/statuscacke"
+	statuscake "github.com/mtulio/statuscake"
 )
 
 type StkOptions struct {
@@ -103,12 +103,13 @@ func (stk *StkAPI) gatherTestsData() {
 		filters.Set("Limit", strconv.Itoa(10))
 
 		for t := range stk.Tests {
-			filters.Set("TestID", strconv.Itoa(stk.Tests[t].TestID))
+			test := stk.Tests[t]
+			filters.Set("TestID", strconv.Itoa(test.TestID))
 			perfData, err := stk.client.PerfData().AllWithFilter(filters)
 			if err != nil {
 				log.Println(err)
 			}
-			stk.Tests[t].PerformanceData = perfData
+			test.PerformanceData = perfData
 		}
 		time.Sleep(time.Second * time.Duration(stk.waitIntervalSec))
 	}
