@@ -1,7 +1,6 @@
 package stk
 
 import (
-	"fmt"
 	"log"
 	"net/url"
 	"strconv"
@@ -143,7 +142,6 @@ func (stk *StkAPI) gatherTestsData() {
 }
 
 func (stk *StkAPI) gatherTestsSSL() {
-	fmt.Println("gatherTestsSSL()")
 	sslCli := statuscake.NewSsls(stk.client)
 	for {
 		ssls, err := sslCli.All()
