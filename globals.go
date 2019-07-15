@@ -7,17 +7,19 @@ import (
 )
 
 type globalConf struct {
-	listenAddress string
-	metricsPath   string
-	version       string
-	versionCm     string
-	versionTag    string
-	versionEnv    string
-	StkUsername   string
-	StkApikey     string
-	StkTags       string
-	StkInterval   int
-	Resolution    int
+	listenAddress  string
+	metricsPath    string
+	version        string
+	versionCm      string
+	versionTag     string
+	versionEnv     string
+	StkUsername    string
+	StkApikey      string
+	StkTags        string
+	StkInterval    int
+	Resolution     int
+	StkEnableTests bool
+	StkEnableSSL   bool
 }
 
 type globalProm struct {
@@ -53,6 +55,8 @@ var (
 		"",
 		defaultInterval,
 		defaultResolution,
+		false,
+		false,
 	}
 	stkAPI *stk.StkAPI
 	prom   globalProm

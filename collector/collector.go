@@ -91,6 +91,7 @@ func NewMasterCollector(stkAPI *stk.StkAPI, filters ...string) (*MasterCollector
 			}
 		}
 	}
+	fmt.Println(collectors)
 	return &MasterCollector{
 		Collectors: collectors,
 		StkAPI:     stkAPI,

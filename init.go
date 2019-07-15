@@ -27,6 +27,8 @@ func initFlags() error {
 	flagStkApikey := flag.String("stk.apikey", "", "StatusCake API's Apikey. Default: nil (required)")
 	flagStkTags := flag.String("stk.tags", "", "StatusCake Filter Tags separated by comma. Default: <empty>")
 	flagStkInterval := flag.Int("stk.interval", defaultInterval, "StatusCake interval time, in seconds, to gather metrics on API (avoid throtling). Default: 300.")
+	flagEnableTests := flag.Bool("stk.enable-tests", true, "Enable Tests module")
+	flagEnableSSL := flag.Bool("stk.enable-ssl", true, "Enable SSL module")
 
 	flagVersion := flag.Bool("v", false, "prints current version")
 	flag.Usage = usage
@@ -66,6 +68,9 @@ func initFlags() error {
 	if *flagStkInterval != defaultInterval {
 		config.StkInterval = *flagStkInterval
 	}
+
+	config.StkEnableTests = *flagEnableTests
+	config.StkEnableSSL = *flagEnableSSL
 
 	return nil
 }
