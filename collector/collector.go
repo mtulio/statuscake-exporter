@@ -11,7 +11,7 @@ import (
 	"github.com/prometheus/client_golang/prometheus"
 )
 
-// NodeCollector implements the prometheus.Collector interface.
+// MasterCollector implements the prometheus.Collector interface.
 type MasterCollector struct {
 	Collectors map[string]Collector
 	StkAPI     *stk.StkAPI
@@ -66,7 +66,7 @@ func registerCollector(collector string, isDefaultEnabled bool, factory func() (
 	factories[collector] = factory
 }
 
-// NewNodeCollector creates a new NodeCollector.
+// NewMasterCollector creates a new NodeCollector.
 func NewMasterCollector(stkAPI *stk.StkAPI, filters ...string) (*MasterCollector, error) {
 	f := make(map[string]bool)
 	for _, filter := range filters {
@@ -98,11 +98,9 @@ func NewMasterCollector(stkAPI *stk.StkAPI, filters ...string) (*MasterCollector
 	}, nil
 }
 
-//Each and every collector must implement the Describe function.
-//It essentially writes all descriptors to the prometheus desc channel.
+//Describe essentially writes all descriptors to the prometheus desc channel.
 func (mc *MasterCollector) Describe(ch chan<- *prometheus.Desc) {
 
-	//Update this section with the each metric you create for a given collector
 	ch <- scrapeDurationDesc
 	ch <- scrapeSuccessDesc
 }
