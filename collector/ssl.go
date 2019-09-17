@@ -3,6 +3,7 @@ package collector
 import (
 	"strconv"
 	"time"
+	"math"
 
 	"github.com/mtulio/statuscake-exporter/stk"
 	"github.com/prometheus/client_golang/prometheus"
@@ -148,14 +149,13 @@ func (c *stkSSLCollector) updateStkSSL(ch chan<- prometheus.Metric) error {
 			test.Domain,
 		)
 
-		t, err := time.Parse("2021-03-18 23:59:00", test.ValidUntilUtc)
-		if err != nil {
-			tnow := time.Now()
-			secUntilExpiry := tnow.Sub(t)
+		t, err := time.Parse("2006-01-02 15:04:05", test.ValidUntilUtc)
+		if err == nil {
+			secUntilExpiry := math.Round(t.Sub(time.Now().UTC()).Seconds())
 			ch <- prometheus.MustNewConstMetric(
 				c.stkSslValidUntil,
 				prometheus.GaugeValue,
-				float64(secUntilExpiry),
+				secUntilExpiry,
 				test.Domain,
 			)
 		}
