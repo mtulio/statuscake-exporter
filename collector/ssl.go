@@ -1,9 +1,9 @@
 package collector
 
 import (
+	"math"
 	"strconv"
 	"time"
-	"math"
 
 	"github.com/mtulio/statuscake-exporter/stk"
 	"github.com/prometheus/client_golang/prometheus"
@@ -21,6 +21,7 @@ type stkSSLCollector struct {
 	stkSslAlertExpiry   *prometheus.Desc
 	stkSslAlertBroken   *prometheus.Desc
 	stkSslAlertMixed    *prometheus.Desc
+	stkSslFlagEnabled   *prometheus.Desc
 }
 
 const (
@@ -83,6 +84,11 @@ func NewStkSSLCollector() (Collector, error) {
 			prometheus.BuildFQName(namespace, stkSSLCollectorSubsystem, "alert_mixed"),
 			"StatusCake SSL Alert Broken boolean",
 			[]string{"domain"}, nil,
+		),
+		stkSslFlagEnabled: prometheus.NewDesc(
+			prometheus.BuildFQName(namespace, stkSSLCollectorSubsystem, "flag_enabled"),
+			"StatusCake SSL Flag is enabled",
+			[]string{"domain", "name"}, nil,
 		),
 	}, nil
 }
@@ -211,6 +217,22 @@ func (c *stkSSLCollector) updateStkSSL(ch chan<- prometheus.Metric) error {
 			float64(alert),
 			test.Domain,
 		)
+
+		for f := range test.Flags {
+			if !c.StkAPI.CheckSSLFlagIsEnabled(f) {
+				continue
+			}
+			alert = 0
+			if test.Flags[f] {
+				alert = 1
+			}
+			ch <- prometheus.MustNewConstMetric(
+				c.stkSslFlagEnabled,
+				prometheus.GaugeValue,
+				float64(alert),
+				test.Domain, f,
+			)
+		}
 	}
 
 	return nil

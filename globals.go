@@ -20,6 +20,7 @@ type globalConf struct {
 	Resolution     int
 	StkEnableTests bool
 	StkEnableSSL   bool
+	StkSSLFlags    string
 }
 
 type globalProm struct {
@@ -57,6 +58,7 @@ var (
 		defaultResolution,
 		false,
 		false,
+		"",
 	}
 	stkAPI *stk.StkAPI
 	prom   globalProm
