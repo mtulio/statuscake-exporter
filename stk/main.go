@@ -163,6 +163,9 @@ func (stk *StkAPI) CheckSSLFlagIsEnabled(fname string) bool {
 	if ok := stk.sslFlagsEnabled[fname]; ok {
 		return ok
 	}
+	if ok := stk.sslFlagsEnabled["all"]; ok {
+		return ok
+	}
 	return false
 }
 
