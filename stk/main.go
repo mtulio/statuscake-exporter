@@ -9,6 +9,7 @@ import (
 	statuscake "github.com/mtulio/statuscake"
 )
 
+// StkOptions StatusCake CLI Options
 type StkOptions struct {
 	Client statuscake.Client
 	Tags   string
@@ -24,6 +25,7 @@ type StkAPI struct {
 	Tests           []*statuscake.Test
 	TestsSSL        []*statuscake.Ssl
 	controlInit     bool
+	sslFlagsEnabled map[string]bool
 }
 
 // type StkTest statuscake.Test
@@ -154,4 +156,25 @@ func (stk *StkAPI) gatherTestsSSL() {
 		}
 		time.Sleep(time.Second * time.Duration(stk.waitIntervalSec))
 	}
+}
+
+// CheckSSLFlagIsEnabled check if SSL flag is enabled.
+func (stk *StkAPI) CheckSSLFlagIsEnabled(fname string) bool {
+	if ok := stk.sslFlagsEnabled[fname]; ok {
+		return ok
+	}
+	return false
+}
+
+// SetSSLFlag Set SSL Flag
+func (stk *StkAPI) SetSSLFlag(fname string) {
+	if len(stk.sslFlagsEnabled) == 0 {
+		stk.sslFlagsEnabled = make(map[string]bool)
+	}
+	stk.sslFlagsEnabled[fname] = true
+}
+
+// GetSSLFlags Set SSL Flag
+func (stk *StkAPI) GetSSLFlags() map[string]bool {
+	return stk.sslFlagsEnabled
 }

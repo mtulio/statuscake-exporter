@@ -4,6 +4,7 @@ import (
 	"flag"
 	"fmt"
 	"os"
+	"strings"
 
 	"github.com/mtulio/statuscake-exporter/collector"
 	"github.com/mtulio/statuscake-exporter/stk"
@@ -29,9 +30,10 @@ func initFlags() error {
 	flagStkInterval := flag.Int("stk.interval", defaultInterval, "StatusCake interval time, in seconds, to gather metrics on API (avoid throtling). Default: 300.")
 	flagEnableTests := flag.Bool("stk.enable-tests", true, "Enable Tests module")
 	flagEnableSSL := flag.Bool("stk.enable-ssl", true, "Enable SSL module")
+	flagSSLFlags := flag.String("stk.ssl-flags", "", "List of flags to expose as metrics sepparated by comma")
 
-	flagVersion := flag.Bool("v", false, "prints current version")
 	flag.Usage = usage
+	flagVersion := flag.Bool("v", false, "prints current version")
 	flag.Parse()
 
 	if *flagVersion {
@@ -71,6 +73,10 @@ func initFlags() error {
 
 	config.StkEnableTests = *flagEnableTests
 	config.StkEnableSSL = *flagEnableSSL
+
+	if *flagSSLFlags != "" {
+		config.StkSSLFlags = *flagSSLFlags
+	}
 
 	return nil
 }
@@ -130,6 +136,13 @@ func initStkAPI() error {
 	if config.StkTags != "" {
 		stkAPI.SetConfigTags(config.StkTags)
 		log.Info("- tags: ", stkAPI.GetTags())
+	}
+
+	if config.StkSSLFlags != "" {
+		for _, s := range strings.Split(config.StkSSLFlags, ",") {
+			stkAPI.SetSSLFlag(s)
+		}
+		log.Info("- SSL flags: ", stkAPI.GetSSLFlags())
 	}
 
 	return nil
