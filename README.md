@@ -15,6 +15,19 @@ Supported metrics:
 
 The binary will be created on `./bin` dir.
 
+## OPTIONS
+
+`-web.listen-address`: Exporter HTTP listening port
+`-web.telemetry-path`: Exporter metrics path
+`-stk.username`: StatusCake Username
+`-stk.apikey`: StatusCake APIKEY
+`-stk.tags`: Test's Tags to limit the scrape
+`-stk.interval`: Interval in seconds to gather metrics from API
+`-stk.enable-tests`: Enable Test module collector
+`-stk.enable-ssl`: Enable SSL module collector
+`-stk.ssl-flags`: SSL Flags to be enabled as metrics
+`-v`: Show the build version
+
 ## USAGE
 
 * Show metrics from all StatusCake Tests
@@ -47,9 +60,15 @@ statuscake_test_uptime{name="MyApp01_-_api"} 100
 
 ## USAGE DOCKER
 
-> TODO
+```bash
+docker run -it mtulio/statuscake-exporter:v0.3.1 \
+  -stk.username $STATUSCAKE_USER \
+  -stk.apikey $STATUSCAKE_APIKEY
+```
 
 ## CONTRIBUTOR
+
+You can contribute with three ways: using, testing and developing.
 
 * Fork me
 * Open an PR with enhancements, bugfixes, etc
