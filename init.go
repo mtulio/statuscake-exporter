@@ -23,8 +23,8 @@ func initFlags() error {
 	flagListenAddress := flag.String("web.listen-address", config.listenAddress, "Address on which to expose metrics and web interface.")
 	flagMetricsPath := flag.String("web.telemetry-path", config.metricsPath, "Path under which to expose metrics.")
 
-	flagStkUsername := flag.String("stk.username", "", "StatusCake API's Username. Default: nil (required)")
-	flagStkApikey := flag.String("stk.apikey", "", "StatusCake API's Apikey. Default: nil (required)")
+	flagStkUsername := flag.String("stk.username", os.Getenv("STATUSCAKE_USER"), "StatusCake API's Username. Default: nil (required)")
+	flagStkApikey := flag.String("stk.apikey", os.Getenv("STATUSCAKE_APIKEY"), "StatusCake API's Apikey. Default: nil (required)")
 	flagStkTags := flag.String("stk.tags", "", "StatusCake Filter Tags separated by comma. Default: <empty>")
 	flagStkInterval := flag.Int("stk.interval", defaultInterval, "StatusCake interval time, in seconds, to gather metrics on API (avoid throtling). Default: 300.")
 	flagEnableTests := flag.Bool("stk.enable-tests", true, "Enable Tests module")
@@ -48,14 +48,14 @@ func initFlags() error {
 	}
 
 	if *flagStkUsername == "" {
-		log.Errorln("StatusCake API must be provided.")
+		log.Errorln("StatusCake API user, or env var STATUSCAKE_USER, must be provided.")
 		os.Exit(1)
 	} else {
 		config.StkUsername = *flagStkUsername
 	}
 
 	if *flagStkApikey == "" {
-		log.Errorln("StatusCake API APIKEY must be provided.")
+		log.Errorln("StatusCake API APIKEY, or env var STATUSCAKE_APIKEY, must be provided.")
 		os.Exit(1)
 	} else {
 		config.StkApikey = *flagStkApikey
