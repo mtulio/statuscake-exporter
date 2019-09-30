@@ -82,21 +82,35 @@ func (stk *StkAPI) GetWaitInterval() uint32 {
 	return stk.waitIntervalSec
 }
 
-// SetEnableTests define API data scrape wait internval.
+// SetEnableTests set Web Test flag to gather Tests.
 func (stk *StkAPI) SetEnableTests(v bool) {
 	stk.EnableTests = v
 }
 
-// GetEnableTests return the wait interval value.
+// GetEnableTests return the Flag to gather Web Tests.
 func (stk *StkAPI) GetEnableTests() bool {
 	return stk.EnableTests
 }
 
+// SetEnableSSL set SSL flag to gather Tests.
+func (stk *StkAPI) SetEnableSSL(v bool) {
+	stk.EnableTestsSSL = v
+}
+
+// GetEnableSSL return the SSL Flag to gather SSL Tests.
+func (stk *StkAPI) GetEnableSSL() bool {
+	return stk.EnableTestsSSL
+}
+
 // GatherAll retrieves all data for enabled modules.
 func (stk *StkAPI) GatherAll() error {
-	go stk.gatherTest()
-	go stk.gatherTestsData()
-	go stk.gatherTestsSSL()
+	if stk.EnableTests {
+		go stk.gatherTest()
+		go stk.gatherTestsData()
+	}
+	if stk.EnableTestsSSL {
+		go stk.gatherTestsSSL()
+	}
 	return nil
 }
 

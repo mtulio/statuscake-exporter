@@ -123,6 +123,8 @@ func initStkAPI() error {
 	log.Info("Initializing StatusCake API client...Success")
 
 	stkAPI.SetWaitInterval(uint32(config.StkInterval))
+	stkAPI.SetEnableTests(config.StkEnableTests)
+	stkAPI.SetEnableSSL(config.StkEnableSSL)
 
 	err = stkAPI.GatherAll()
 	if err != nil {
