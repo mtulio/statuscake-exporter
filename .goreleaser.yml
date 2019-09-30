@@ -45,3 +45,14 @@ dockers:
     - "v{{ .Major }}"
     - "v{{ .Major }}.{{ .Minor }}"
     - latest
+- binary: statuscake-exporter
+  image: linxnapse/statuscake-exporter
+  goos: linux
+  goarch: amd64
+  skip_push: false
+  dockerfile: hack/Dockerfile-goreleaser
+  tag_templates:
+    - "{{ .Tag }}"
+    - "v{{ .Major }}"
+    - "v{{ .Major }}.{{ .Minor }}"
+    - latest
