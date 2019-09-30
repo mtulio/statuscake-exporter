@@ -45,6 +45,7 @@ func NewStkAPI(user string, pass string) (*StkAPI, error) {
 
 	return &StkAPI{
 		client:          c,
+		configTags:      "",
 		waitIntervalSec: 300,
 		controlInit:     false,
 		EnableTests:     false,
@@ -117,6 +118,7 @@ func (stk *StkAPI) GatherAll() error {
 func (stk *StkAPI) gatherTest() {
 	for {
 		v := url.Values{}
+		// The StatusCake API is eventualy inconsistent when setting tags. :(
 		if stk.configTags != "" {
 			v.Set("tags", stk.configTags)
 		}
