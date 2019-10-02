@@ -37,7 +37,7 @@ func initFlags() error {
 	flag.Parse()
 
 	if *flagVersion {
-		fmt.Println(config.version)
+		fmt.Println(version.Version)
 		os.Exit(0)
 	}
 
@@ -50,14 +50,14 @@ func initFlags() error {
 	}
 
 	if *flagStkUsername == "" {
-		log.Errorln("StatusCake API user, or env var STATUSCAKE_USER, must be provided.")
+		log.Errorln("ERROR: STATUSCAKE_USER environment variable or -stk.username must be provided.")
 		os.Exit(1)
 	} else {
 		config.StkUsername = *flagStkUsername
 	}
 
 	if *flagStkApikey == "" {
-		log.Errorln("StatusCake API APIKEY, or env var STATUSCAKE_APIKEY, must be provided.")
+		log.Errorln("ERROR: STATUSCAKE_APIKEY environment variable or -stk.apikey must be provided.")
 		os.Exit(1)
 	} else {
 		config.StkApikey = *flagStkApikey

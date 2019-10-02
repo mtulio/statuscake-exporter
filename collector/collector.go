@@ -11,21 +11,19 @@ import (
 	"github.com/prometheus/client_golang/prometheus"
 )
 
-// MasterCollector implements the prometheus.Collector interface.
+//MasterCollector implements the prometheus.Collector interface.
 type MasterCollector struct {
 	Collectors map[string]Collector
 	StkAPI     *stk.StkAPI
 }
 
-// Collector is the interface a collector has to implement.
+//Collector is the interface a collector has to implement.
 type Collector interface {
-	// Get new metrics and expose them via prometheus registry.
 	Update(ch chan<- prometheus.Metric) error
 	UpdateConfig(stkAPI *stk.StkAPI) error
 }
 
 const (
-	// Namespace defines the common namespace to be used by all metrics.
 	namespace       = "statuscake"
 	defaultEnabled  = true
 	defaultDisabled = false
@@ -66,7 +64,7 @@ func registerCollector(collector string, isDefaultEnabled bool, factory func() (
 	factories[collector] = factory
 }
 
-// NewMasterCollector creates a new NodeCollector.
+//NewMasterCollector creates a new NodeCollector.
 func NewMasterCollector(stkAPI *stk.StkAPI, filters ...string) (*MasterCollector, error) {
 	f := make(map[string]bool)
 	for _, filter := range filters {
@@ -91,7 +89,6 @@ func NewMasterCollector(stkAPI *stk.StkAPI, filters ...string) (*MasterCollector
 			}
 		}
 	}
-	fmt.Println(collectors)
 	return &MasterCollector{
 		Collectors: collectors,
 		StkAPI:     stkAPI,

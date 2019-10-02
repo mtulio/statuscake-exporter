@@ -9,10 +9,6 @@ import (
 type globalConf struct {
 	listenAddress  string
 	metricsPath    string
-	version        string
-	versionCm      string
-	versionTag     string
-	versionEnv     string
 	StkUsername    string
 	StkApikey      string
 	StkTags        string
@@ -37,20 +33,10 @@ const (
 )
 
 var (
-	// VersionCommit is a compiler exporterd var
-	VersionCommit string
-	VersionTag    string
-	VersionFull   string
-	VersionEnv    string
-
 	// Global vars
 	config = globalConf{
 		":9190",
 		"/metrics",
-		VersionFull,
-		VersionCommit,
-		VersionTag,
-		VersionEnv,
 		"",
 		"",
 		"",

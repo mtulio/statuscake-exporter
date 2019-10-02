@@ -118,7 +118,7 @@ func (stk *StkAPI) GatherAll() error {
 func (stk *StkAPI) gatherTest() {
 	for {
 		v := url.Values{}
-		// The StatusCake API is eventualy inconsistent when setting tags. :(
+		// The StatusCake API is eventualy consistent when setting tags. :(
 		if stk.configTags != "" {
 			v.Set("tags", stk.configTags)
 		}
@@ -137,7 +137,7 @@ func (stk *StkAPI) gatherTest() {
 
 func (stk *StkAPI) gatherTestsData() {
 	for {
-		if len(stk.Tests) <= 0 {
+		if (stk.Tests == nil) || (len(stk.Tests) <= 0) {
 			time.Sleep(time.Second * 10)
 			continue
 		}
