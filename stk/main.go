@@ -22,6 +22,7 @@ type StkAPI struct {
 	waitIntervalSec uint32
 	EnableTests     bool
 	EnableTestsSSL  bool
+	EnableTestsPerf bool
 	Tests           []*statuscake.Test
 	TestsSSL        []*statuscake.Ssl
 	controlInit     bool
@@ -50,6 +51,7 @@ func NewStkAPI(user string, pass string) (*StkAPI, error) {
 		controlInit:     false,
 		EnableTests:     false,
 		EnableTestsSSL:  false,
+		EnableTestsPerf: false,
 	}, nil
 }
 
@@ -103,10 +105,22 @@ func (stk *StkAPI) GetEnableSSL() bool {
 	return stk.EnableTestsSSL
 }
 
+// SetEnableTestsPerf set Web Test flag to gather Tests Performance data.
+func (stk *StkAPI) SetEnableTestsPerf(v bool) {
+	stk.EnableTestsPerf = v
+}
+
+// GetEnableTestsPerf return the Flag to gather Tests Performance data.
+func (stk *StkAPI) GetEnableTestsPerf() bool {
+	return stk.EnableTestsPerf
+}
+
 // GatherAll retrieves all data for enabled modules.
 func (stk *StkAPI) GatherAll() error {
 	if stk.EnableTests {
 		go stk.gatherTest()
+	}
+	if stk.EnableTestsPerf {
 		go stk.gatherTestsData()
 	}
 	if stk.EnableTestsSSL {

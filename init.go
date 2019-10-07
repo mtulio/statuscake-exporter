@@ -29,6 +29,7 @@ func initFlags() error {
 	flagStkTags := flag.String("stk.tags", "", "StatusCake Filter Tags separated by comma. Default: <empty>")
 	flagStkInterval := flag.Int("stk.interval", defaultInterval, "StatusCake interval time, in seconds, to gather metrics on API (avoid throtling). Default: 300.")
 	flagEnableTests := flag.Bool("stk.enable-tests", true, "Enable Tests module")
+	flagEnableTestsPerf := flag.Bool("stk.enable-tests-perf", true, "Enable Tests Performance data collector")
 	flagEnableSSL := flag.Bool("stk.enable-ssl", true, "Enable SSL module")
 	flagSSLFlags := flag.String("stk.ssl-flags", "", "List of flags to expose as metrics sepparated by comma")
 
@@ -72,6 +73,7 @@ func initFlags() error {
 	}
 
 	config.StkEnableTests = *flagEnableTests
+	config.StkEnableTestsPerf = *flagEnableTestsPerf
 	config.StkEnableSSL = *flagEnableSSL
 
 	if *flagSSLFlags != "" {
@@ -124,6 +126,7 @@ func initStkAPI() error {
 
 	stkAPI.SetWaitInterval(uint32(config.StkInterval))
 	stkAPI.SetEnableTests(config.StkEnableTests)
+	stkAPI.SetEnableTestsPerf(config.StkEnableTestsPerf)
 	stkAPI.SetEnableSSL(config.StkEnableSSL)
 
 	err = stkAPI.GatherAll()

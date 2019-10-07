@@ -7,16 +7,17 @@ import (
 )
 
 type globalConf struct {
-	listenAddress  string
-	metricsPath    string
-	StkUsername    string
-	StkApikey      string
-	StkTags        string
-	StkInterval    int
-	Resolution     int
-	StkEnableTests bool
-	StkEnableSSL   bool
-	StkSSLFlags    string
+	listenAddress      string
+	metricsPath        string
+	StkUsername        string
+	StkApikey          string
+	StkTags            string
+	StkInterval        int
+	Resolution         int
+	StkEnableTests     bool
+	StkEnableTestsPerf bool
+	StkEnableSSL       bool
+	StkSSLFlags        string
 }
 
 type globalProm struct {
@@ -42,6 +43,7 @@ var (
 		"",
 		defaultInterval,
 		defaultResolution,
+		false,
 		false,
 		false,
 		"",
