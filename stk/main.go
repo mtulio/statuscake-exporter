@@ -4,6 +4,7 @@ import (
 	"log"
 	"net/url"
 	"strconv"
+	"sync"
 	"time"
 
 	statuscake "github.com/mtulio/statuscake"
@@ -22,9 +23,16 @@ type StkAPI struct {
 	waitIntervalSec uint32
 	EnableTests     bool
 	EnableTestsSSL  bool
-	Tests           []*statuscake.Test
-	TestsSSL        []*statuscake.Ssl
-	controlInit     bool
+
+	testsMut sync.Mutex
+	Tests    []*statuscake.Test
+
+	testsSSLMut sync.Mutex
+	TestsSSL    []*statuscake.Ssl
+
+	cmut        sync.Mutex
+	controlInit bool
+
 	sslFlagsEnabled map[string]bool
 }
 
@@ -64,12 +72,24 @@ func (stk *StkAPI) GetTags() string {
 
 // GetTests return all StatusCake Tests from last API discovery.
 func (stk *StkAPI) GetTests() []*statuscake.Test {
-	return stk.Tests
+	stk.testsMut.Lock()
+	defer stk.testsMut.Unlock()
+
+	ret := make([]*statuscake.Test, len(stk.Tests))
+	copy(ret, stk.Tests)
+
+	return ret
 }
 
 // GetTestsSSL return all StatusCake SSL Tests from last API discovery.
 func (stk *StkAPI) GetTestsSSL() []*statuscake.Ssl {
-	return stk.TestsSSL
+	stk.testsSSLMut.Lock()
+	defer stk.testsSSLMut.Unlock()
+
+	ret := make([]*statuscake.Ssl, len(stk.TestsSSL))
+	copy(ret, stk.TestsSSL)
+
+	return ret
 }
 
 // SetWaitInterval define API data scrape wait internval.
@@ -110,18 +130,24 @@ func (stk *StkAPI) gatherTest() {
 		if err != nil {
 			log.Println(err)
 		}
+		stk.testsMut.Lock()
 		stk.Tests = tests
+		stk.cmut.Lock()
 		if !stk.controlInit {
 			log.Println(" Initial API discovery returns the Total of Tests:", len(tests))
 			stk.controlInit = true
 		}
+		stk.cmut.Unlock()
+		stk.testsMut.Unlock()
 		time.Sleep(time.Second * time.Duration(stk.waitIntervalSec))
 	}
 }
 
 func (stk *StkAPI) gatherTestsData() {
 	for {
+		stk.testsMut.Lock()
 		if len(stk.Tests) <= 0 {
+			stk.testsMut.Unlock()
 			time.Sleep(time.Second * 10)
 			continue
 		}
@@ -139,6 +165,7 @@ func (stk *StkAPI) gatherTestsData() {
 			}
 			test.PerformanceData = perfData
 		}
+		stk.testsMut.Unlock()
 		time.Sleep(time.Second * time.Duration(stk.waitIntervalSec))
 	}
 }
@@ -150,10 +177,14 @@ func (stk *StkAPI) gatherTestsSSL() {
 		if err != nil {
 			log.Println(err)
 		}
+		stk.testsSSLMut.Lock()
 		stk.TestsSSL = ssls
+		stk.cmut.Lock()
 		if !stk.controlInit {
 			log.Println(" Initial API discovery returns the Total of SSL Tests:", len(stk.TestsSSL))
 		}
+		stk.cmut.Unlock()
+		stk.testsSSLMut.Unlock()
 		time.Sleep(time.Second * time.Duration(stk.waitIntervalSec))
 	}
 }
