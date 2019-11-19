@@ -66,6 +66,18 @@ docker run -it mtulio/statuscake-exporter:v0.3.1 \
   -stk.apikey $STATUSCAKE_APIKEY
 ```
 
+OR, to build your own Docker image:
+
+`make build`
+
+The binary will be created on `./bin` dir.
+
+`docker build  .`
+
+This will create a docker image.
+
+Set STATUSCAKE_APIKEY and STATUSCAKE_USER variables for Docker image, and  `docker run $image-id-here`
+
 ## CONTRIBUTOR
 
 You can contribute with three ways: using, testing and developing.

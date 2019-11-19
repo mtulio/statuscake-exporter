@@ -25,6 +25,9 @@ GIT_DESCRIBE := $(shell git describe --tags --always)
 GOOS := linux
 GOARCH := amd64
 
+CGO_ENABLED := 0
+
+
 LDFLAGS :=
 LDFLAGS += -X main.VersionCommit=$(GIT_COMMIT)
 LDFLAGS += -X main.VersionTag=$(GIT_DESCRIBE)
