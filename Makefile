@@ -19,8 +19,8 @@ update:
 .PHONY: build
 build:
 	@test -d ./bin || mkdir ./bin
-	GOOS=$(GOOS) GOARCH=$(GOARCH) \
-		go build \
+	 CGO_ENABLED=$(CGO_ENABLED) GOOS=$(GOOS) GOARCH=$(GOARCH) \
+		go build  \
 		-ldflags "$(LDFLAGS)" \
 		$(BUILD_TAGS) \
 		-o $(BIN_NAME) && strip $(BIN_NAME)
