@@ -27,7 +27,6 @@ GOARCH := amd64
 
 CGO_ENABLED := 0
 
-
 LDFLAGS :=
 LDFLAGS += -X main.VersionCommit=$(GIT_COMMIT)
 LDFLAGS += -X main.VersionTag=$(GIT_DESCRIBE)
