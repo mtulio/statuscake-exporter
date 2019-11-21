@@ -19,7 +19,7 @@ update:
 .PHONY: build
 build:
 	@test -d ./bin || mkdir ./bin
-	 CGO_ENABLED=$(CGO_ENABLED) GOOS=$(GOOS) GOARCH=$(GOARCH) \
+	CGO_ENABLED=$(CGO_ENABLED) GOOS=$(GOOS) GOARCH=$(GOARCH) \
 		go build \
 		-ldflags "$(LDFLAGS)" \
 		$(BUILD_TAGS) \
