@@ -1,5 +1,6 @@
-FROM alpine:latest
+FROM alpine:3.8
 RUN apk --no-cache add ca-certificates
+RUN apk add curl
 COPY statuscake-exporter /statuscake-exporter
 ENTRYPOINT ["/statuscake-exporter"]
 CMD [ "-h" ]

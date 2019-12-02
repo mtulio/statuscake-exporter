@@ -21,6 +21,9 @@ TMP_DIRS += ./dist
 
 GIT_COMMIT := $(shell git rev-parse --short HEAD)
 GIT_DESCRIBE := $(shell git describe --tags --always)
+GIT_BRANCH := $(shell git branch | grep \* | cut -d ' ' -f2)
+
+BUILD_DATE := $(shell date +%Y/%m/%d-%H:%M:%S)
 
 GOOS := linux
 GOARCH := amd64
@@ -28,9 +31,10 @@ GOARCH := amd64
 CGO_ENABLED := 0
 
 LDFLAGS :=
-LDFLAGS += -X main.VersionCommit=$(GIT_COMMIT)
-LDFLAGS += -X main.VersionTag=$(GIT_DESCRIBE)
-LDFLAGS += -X main.VersionFull=$(VERSION)
+LDFLAGS += -X github.com/prometheus/common/version.Branch=$(GIT_COMMIT)
+LDFLAGS += -X github.com/prometheus/common/version.Revision==$(GIT_DESCRIBE)
+LDFLAGS += -X github.com/prometheus/common/version.Version=$(VERSION)
+LDFLAGS += -X github.com/prometheus/common/version.BuildDate=$(BUILD_DATE)
 LDFLAGS += -X main.VersionEnv=$(ENV)
 
 GORELEASE_VERSION 	:= v0.86.1

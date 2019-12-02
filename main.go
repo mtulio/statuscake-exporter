@@ -6,6 +6,7 @@ import (
 	"os"
 
 	"github.com/prometheus/client_golang/prometheus/promhttp"
+	"github.com/prometheus/common/version"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -55,7 +56,6 @@ func handler(w http.ResponseWriter, r *http.Request) {
 		prom.Registry,
 		promhttp.HandlerFor(prom.Gatherers,
 			promhttp.HandlerOpts{
-				// ErrorLog:      log.NewErrorLogger(),
 				ErrorHandling: promhttp.ContinueOnError,
 			}),
 	)
@@ -64,7 +64,7 @@ func handler(w http.ResponseWriter, r *http.Request) {
 
 func main() {
 
-	log.Infoln("Starting exporter ", config.version)
+	log.Infoln("Starting exporter ", version.Version)
 
 	//This section will start the HTTP server and expose
 	//any metrics on the /metrics endpoint.

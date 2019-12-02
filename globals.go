@@ -7,20 +7,17 @@ import (
 )
 
 type globalConf struct {
-	listenAddress  string
-	metricsPath    string
-	version        string
-	versionCm      string
-	versionTag     string
-	versionEnv     string
-	StkUsername    string
-	StkApikey      string
-	StkTags        string
-	StkInterval    int
-	Resolution     int
-	StkEnableTests bool
-	StkEnableSSL   bool
-	StkSSLFlags    string
+	listenAddress      string
+	metricsPath        string
+	StkUsername        string
+	StkApikey          string
+	StkTags            string
+	StkInterval        int
+	Resolution         int
+	StkEnableTests     bool
+	StkEnableTestsPerf bool
+	StkEnableSSL       bool
+	StkSSLFlags        string
 }
 
 type globalProm struct {
@@ -37,25 +34,16 @@ const (
 )
 
 var (
-	// VersionCommit is a compiler exporterd var
-	VersionCommit string
-	VersionTag    string
-	VersionFull   string
-	VersionEnv    string
-
 	// Global vars
 	config = globalConf{
 		":9190",
 		"/metrics",
-		VersionFull,
-		VersionCommit,
-		VersionTag,
-		VersionEnv,
 		"",
 		"",
 		"",
 		defaultInterval,
 		defaultResolution,
+		false,
 		false,
 		false,
 		"",

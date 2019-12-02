@@ -22,6 +22,7 @@ type StkAPI struct {
 	waitIntervalSec uint32
 	EnableTests     bool
 	EnableTestsSSL  bool
+	EnableTestsPerf bool
 	Tests           []*statuscake.Test
 	TestsSSL        []*statuscake.Ssl
 	controlInit     bool
@@ -45,10 +46,12 @@ func NewStkAPI(user string, pass string) (*StkAPI, error) {
 
 	return &StkAPI{
 		client:          c,
+		configTags:      "",
 		waitIntervalSec: 300,
 		controlInit:     false,
 		EnableTests:     false,
 		EnableTestsSSL:  false,
+		EnableTestsPerf: false,
 	}, nil
 }
 
@@ -82,27 +85,54 @@ func (stk *StkAPI) GetWaitInterval() uint32 {
 	return stk.waitIntervalSec
 }
 
-// SetEnableTests define API data scrape wait internval.
+// SetEnableTests set Web Test flag to gather Tests.
 func (stk *StkAPI) SetEnableTests(v bool) {
 	stk.EnableTests = v
 }
 
-// GetEnableTests return the wait interval value.
+// GetEnableTests return the Flag to gather Web Tests.
 func (stk *StkAPI) GetEnableTests() bool {
 	return stk.EnableTests
 }
 
+// SetEnableSSL set SSL flag to gather Tests.
+func (stk *StkAPI) SetEnableSSL(v bool) {
+	stk.EnableTestsSSL = v
+}
+
+// GetEnableSSL return the SSL Flag to gather SSL Tests.
+func (stk *StkAPI) GetEnableSSL() bool {
+	return stk.EnableTestsSSL
+}
+
+// SetEnableTestsPerf set Web Test flag to gather Tests Performance data.
+func (stk *StkAPI) SetEnableTestsPerf(v bool) {
+	stk.EnableTestsPerf = v
+}
+
+// GetEnableTestsPerf return the Flag to gather Tests Performance data.
+func (stk *StkAPI) GetEnableTestsPerf() bool {
+	return stk.EnableTestsPerf
+}
+
 // GatherAll retrieves all data for enabled modules.
 func (stk *StkAPI) GatherAll() error {
-	go stk.gatherTest()
-	go stk.gatherTestsData()
-	go stk.gatherTestsSSL()
+	if stk.EnableTests {
+		go stk.gatherTest()
+	}
+	if stk.EnableTestsPerf {
+		go stk.gatherTestsData()
+	}
+	if stk.EnableTestsSSL {
+		go stk.gatherTestsSSL()
+	}
 	return nil
 }
 
 func (stk *StkAPI) gatherTest() {
 	for {
 		v := url.Values{}
+		// The StatusCake API is eventualy consistent when setting tags. :(
 		if stk.configTags != "" {
 			v.Set("tags", stk.configTags)
 		}
@@ -121,7 +151,7 @@ func (stk *StkAPI) gatherTest() {
 
 func (stk *StkAPI) gatherTestsData() {
 	for {
-		if len(stk.Tests) <= 0 {
+		if (stk.Tests == nil) || (len(stk.Tests) <= 0) {
 			time.Sleep(time.Second * 10)
 			continue
 		}
